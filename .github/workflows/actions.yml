@@ -1,0 +1,29 @@
+name: citwo
+on:
+  push:
+    branches:
+      - main
+      - feature-branch
+      
+jobs:
+  dev:
+    if: github.ref == 'refs/heads/feature-branch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: dev
+        run: |
+          echo "${{secrets.CIDEV }}" | docker login -u "santosch" --password-stdin
+          docker image build -t santosch/cidev:v${{ github.run_number }} .
+          docker push santosch/cidev:v${{ github.run_number }}
+          
+  prod:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: prod
+        run: |
+         echo "${{secrets.CITWOPROD }}" | docker login -u "santosch" --password-stdin
+         docker image build -t santosch/citwoprod:v${{ github.run_number }} .
+         docker push santosch/citwoprod:v${{ github.run_number }}
